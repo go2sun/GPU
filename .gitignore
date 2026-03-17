@@ -1,0 +1,11 @@
+# macOS 系统文件
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# 临时审计文件
+data/temp_audit/
+video_link
+
+# 这里的垃圾文件不再会被同步
