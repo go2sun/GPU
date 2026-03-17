@@ -1,0 +1,13 @@
+MATS version 400.184.  Testing GA102 with 20 MB of memory at 40 MHz.
+SUBTEST: 0  (Read/Write 0xFFFFFFFF)
+  Errors found.
+  FAILING BITS:
+  Channel A0: 00000000
+  Channel A1: 00000000
+  Channel B0: FFFFFFFF  <-- [ERROR DETECTED]
+  Channel B1: 00000000
+  
+  ERROR ADDRESS: 0x00004500 (Channel B0)
+  SUMMARY:
+  Memory errors detected on Channel B0. 
+  Check connection or replace DRAM module at physical location U14.
