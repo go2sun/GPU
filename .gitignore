@@ -11,3 +11,5 @@ video_link
 # 这里的垃圾文件不再会被同步
 ._*
 .DS_Store
+**/passwords.md
+Private/
