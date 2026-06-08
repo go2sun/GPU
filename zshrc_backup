@@ -136,9 +136,10 @@ alias m4-kim="~/rename_m4_evidence.sh"
 alias vcap='~/video_env/bin/videocaptioner'
 
 # 1. 终极版 Qwen 启动别名（强行注入 chatml 模板解析，解决系统提示词顺序报错）
+export QWEN_MODEL_PATH="/Users/nusun/models/llm/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-IQ2_M.gguf"
 # 1. 优化版 Qwen 启动别名（控制上下文至 16k，优化批次并开启统一 KV 缓存，杜绝 OOM）
 alias qwen="cd ~/llama.cpp && ./build/bin/llama-server \
-  -m ~/models/qwen3.6-35b/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-IQ2_M.gguf \
+  -m "$QWEN_MODEL_PATH" \
   --port 8080 \
   -ngl 99 \
   -c 16384 \
@@ -216,3 +217,6 @@ m4-audit-timeline() {
     echo "✅ 审计报告已生成: $OUTPUT_FILE"
     open -a "Obsidian" "$OUTPUT_FILE"
 }
+
+# OpenClaw Completion
+[ -f "/Users/nusun/.openclaw/completions/openclaw.zsh" ] && source "/Users/nusun/.openclaw/completions/openclaw.zsh"
