@@ -1,0 +1,163 @@
+# ========== [ M4 视觉审计系统 (最终版) ] ==========
+export SYSTEM_NAME="M4 视觉审计系统 (最终版)"
+
+# 路径整合：确保 Homebrew, Node Global 和 Local Bin 优先级正确
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.lmstudio/bin:$HOME/.local/bin:$(npm prefix -g)/bin:$PATH"
+
+# --- [1] Obsidian & 知识库自动化 ---
+export OBSIDIAN_API_KEY="6692d28e981afaf4ed52065d3f8ab7ae647caf049c7efbf710717fc86baabe08"
+export OBSIDIAN_API_SECRET="$OBSIDIAN_API_KEY"
+export OBSIDIAN_API_URL="http://127.0.0.1:27123"
+
+# 快速跳转/搜索 Obsidian 笔记
+function ob() {
+  local VAULT_NAME="MacMiniM4"
+  local TODAY=$(date "+%Y-%m-%d")
+  if [ -z "$1" ]; then 
+    open -a "Obsidian"
+  elif [ "$1" = "daily" ]; then 
+    open "obsidian://open?vault=${VAULT_NAME}&file=${TODAY}"
+  else 
+    open "obsidian://search?vault=${VAULT_NAME}&query=$1"
+  fi
+}
+
+# 审计截图：自动创建路径并保存带时间戳的证据
+m4-snap() {
+    local TARGET_DIR="$HOME/Documents/Project/MacMiniM4/audit_evidence"
+    mkdir -p "$TARGET_DIR"
+    obsidian dev:screenshot path="${TARGET_DIR}/screen_$(date +%Y%m%d_%H%M%S).png"
+    echo "📸 审计截图已存至: ${TARGET_DIR}"
+}
+
+# 标签分析工具
+alias obtags='curl -s -H "Authorization: Bearer $OBSIDIAN_API_KEY" "$OBSIDIAN_API_URL/tags/" | python3 -m json.tool'
+
+# --- [2] 核心审计引擎与 AI 链路 ---
+# Qwen3-VL 视觉大模型调用
+alias m4='ollama run huihui_ai/qwen3-vl-abliterated:8b-instruct'
+# 法庭质询模拟模式
+alias fsi-drill="gemini -p '启动 FSI Drill 模式：请作为一名严厉的法庭质询官，针对我的陈述进行模拟抗辩训练，强化出庭抗辩能力。'"
+# 敏感文件扫描
+alias m4-scan="python3 ~/m4_scanner.py"
+# AI 漏洞/合规审计
+alias m4-audit="m4-scan | gemini -p '请根据以下敏感路径制定加密/隔离方案：'"
+
+# 启动 OpenCode 审计网关 (修正了 npm-global 物理路径)
+run-audit() {
+    lsof -ti:18789 | xargs kill -9 2>/dev/null
+    mkdir -p ~/.openclaw
+    cat << 'JSON' > ~/.openclaw/openclaw.json
+{
+  "agents": { "defaults": { "model": { "primary": "ollama/huihui_ai/qwen3-vl-abliterated:8b-instruct" } } },
+  "gateway": { "port": 18789, "mode": "local", "auth": { "mode": "none" } },
+  "models": { "providers": { "ollama": { "baseUrl": "http://127.0.0.1:11434/v1", "models": [{ "id": "huihui_ai/qwen3-vl-abliterated:8b-instruct", "name": "Huihui Qwen3 VL", "input": ["text", "image"] }] } } }
+}
+JSON
+
+    echo "🛡️ [M4 引擎] 配置已就绪，正在点火..."
+    
+    # 核心：使用 which 确认的物理路径
+    /Users/nusun/.local/bin/openclaw gateway run
+}
+
+# 专用审计时间线生成函数
+m4-timeline() {
+    local TARGET_DIR="$HOME/TAL_Evidence_KIM"
+    echo "📊 正在提取证据时间线..."
+    
+    # 提取文件名和日期，直接传给 AI 进行逻辑分析
+    ls -l "$TARGET_DIR" | awk '{print $6, $7, $9}' > /tmp/m4_files.txt
+    
+    cat /tmp/m4_files.txt | m4 "请根据以下文件列表和日期，为租客 Kim Lefebvre 整理一份 Markdown 格式的法庭审计时间线，突出显示送达（Signification）和逾期（Arriérés）节点。"
+}
+
+# --- [3] 系统清理与防御 (锁定环境) ---
+cleanm4() {
+
+    echo "🚀 正在执行 M4 系统深度清理..."
+    sudo killall -9 idleassetsd 2>/dev/null
+    # 使用引号包裹路径防止 Zsh 误解析
+    sudo rm -rf "/Library/Logs/"* 2>/dev/null
+    rm -rf ~/Library/Caches/* 2>/dev/null
+    rm -rf ~/.cache/huggingface/hub/* 2>/dev/null
+    brew cleanup --prune=all
+    echo "✨ 环境清理完成！"
+}
+
+# --- [4] 同步与结项流程 ---
+# 同步 dotfiles 到远程仓库并记录到 Obsidian 日志
+syncm4() {
+    local REPO_DIR="$HOME/M4_Repo"
+    echo "🛡️ [M4 审计] 正在进入深度同步模式..."
+    
+    cd "$REPO_DIR" || return
+    
+    # 1. 强制处理子模块：如果有修改，将其纳入暂存区
+    if [ -d "claude-src" ]; then
+        echo "📂 发现子模块 claude-src，正在同步状态..."
+        git submodule update --init --recursive
+    fi
+    
+    # 2. 捕获核心配置：将最新的 .zshrc 覆盖到仓库备用
+    cp "$HOME/.zshrc" "$REPO_DIR/zshrc_backup"
+    
+    # 3. 提交逻辑：使用 -a 参数自动包含所有修改过的文件，跳过手动 add
+    git add .
+    git commit -m "M4 Sync $(date '+%Y-%m-%d %H:%M:%S')"
+    
+    # 4. 推送
+    git push origin main
+    
+    # 5. 审计记录
+    obsidian append file="System Log" content="- [x] **系统备份完成**: $(date '+%Y-%m-%d %H:%M:%S') 🛡️" silent
+    echo "✨ 同步完成，审计日志已更新。"
+}
+
+# 结项指令：清理 -> 同步 -> 归档
+alias m4-done="cleanm4 && syncm4"
+alias m4-kim="~/rename_m4_evidence.sh"
+alias vcap='~/video_env/bin/videocaptioner'
+
+# 1. 终极版 Qwen 启动别名（强行注入 chatml 模板解析，解决系统提示词顺序报错）
+# 1. 优化版 Qwen 启动别名（控制上下文至 16k，优化批次并开启统一 KV 缓存，杜绝 OOM）
+alias qwen="cd ~/llama.cpp && ./build/bin/llama-server \
+  -m ~/models/qwen3.6-35b/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-IQ2_M.gguf \
+  --port 8080 \
+  -ngl 99 \
+  -c 16384 \
+  -np 1 \
+  -b 2048 \
+  -ub 1024 \
+  -fa on \
+  -ctk q4_0 \
+  -ctv q4_0 \
+  --kv-unified \
+  --cache-idle-slots \
+  --repeat-penalty 1.15 \
+  --frequency-penalty 0.5 \
+  --presence-penalty 0.5 \
+  --temperature 0.7 \
+  --no-warmup \
+  --cache-ram 2048 \
+  -t 8 \
+  --chat-template chatml"
+# 2. LiteLLM 启动别名（保持完美现状）
+alias qlite="litellm --model anthropic/qwen-35b-local --api_base http://127.0.0.1:8080 --drop_params"
+
+echo "🛡️ $SYSTEM_NAME 配置文件已加载。"
+
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+export CMAKE_PREFIX_PATH="/opt/homebrew/opt/llvm"
+
+# >>> Claude Code Haha PATH >>>
+export PATH="$HOME/.local/bin:$PATH"
+# <<< Claude Code Haha PATH <<<
+alias start_litellm="DISABLE_UVLOOP=True litellm --config ~/.config/litellm/litellm_config.yaml --port 4000"
+ 
+export LITELLM_MASTER_KEY="8848"
+export DEEPSEEK_API_KEY="sk-cf71cc27e6314b2ba00d58d26bc6d445"
+# opencode
+export PATH=/Users/nusun/.opencode/bin:$PATH
