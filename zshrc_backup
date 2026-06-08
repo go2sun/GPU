@@ -161,3 +161,39 @@ export LITELLM_MASTER_KEY="8848"
 export DEEPSEEK_API_KEY="sk-cf71cc27e6314b2ba00d58d26bc6d445"
 # opencode
 export PATH=/Users/nusun/.opencode/bin:$PATH
+
+
+m4-audit-timeline() {
+    local TARGET_DIR="$HOME/TAL_Evidence_KIM"
+    local OUTPUT_FILE="/tmp/m4_timeline_$(date +%Y%m%d).md"
+    
+    echo "📊 [M4 引擎] 正在扫描证据目录: $TARGET_DIR ..."
+    
+    # 提取文件时间戳 (ctime/mtime) 和文件名，忽略非文件项
+    # 输出格式: YYYY-MM-DD HH:MM | 文件名
+    ls -lT "$TARGET_DIR" | awk '{print $9, $10, $11, "|", $12}' > /tmp/m4_evidence_list.txt
+    
+    echo "🧠 [M4 引擎] 正在投喂 AI 进行审计推理..."
+    
+    # 组装 Prompt
+    local PROMPT="你是一名专业的法庭审计官。请分析以下文件列表（格式：时间 | 文件名）。
+    
+    1. 为租客 Kim Lefebvre 整理一份 Markdown 格式的时间线报告。
+    2. 必须识别并高亮显示以下关键节点：'送达证明 (Signification)'、'逾期租金通知 (Arriérés)'、'法律信函'。
+    3. 如果文件名中包含特定日期或金额，请将其提取并格式化为表格。
+    
+    数据：$(cat /tmp/m4_evidence_list.txt)"
+
+    # 调用你的大模型接口（使用你之前配置好的 8080 端口）
+    curl -s http://127.0.0.1:8080/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "qwen3.6-35b",
+        "messages": [{"role": "user", "content": "'"$PROMPT"'"}]
+      }' | jq -r '.choices[0].message.content' > "$OUTPUT_FILE"
+
+    echo "✅ 审计报告已生成: $OUTPUT_FILE"
+    
+    # 自动在 Obsidian 中打开以便你预览
+    open -a "Obsidian" "$OUTPUT_FILE"
+}
