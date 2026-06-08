@@ -110,7 +110,16 @@ syncm4() {
     git push origin main
     
     # 5. 审计记录
-    obsidian append file="System Log" content="- [x] **系统备份完成**: $(date '+%Y-%m-%d %H:%M:%S') 🛡️" silent
+    # 修正版：手动调用 REST API 并携带密钥
+    
+    # 修正版：手动调用 REST API 并携带密钥
+curl -X POST http://127.0.0.1:27123/append/ \
+     -H "Authorization: Bearer $OBSIDIAN_API_KEY" \
+     -H "Content-Type: text/markdown" \
+     -d "- [x] **系统同步完成**: $(date '+%Y-%m-%d %H:%M:%S') 🛡️" \
+     --silent --output /dev/null
+     
+
     echo "✨ 同步完成，审计日志已更新。"
 }
 
