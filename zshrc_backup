@@ -16,6 +16,8 @@ export QWEN_MODEL_PATH="/Users/nusun/models/llm/Qwen3.6-35B-A3B-Uncensored-Hauha
 # 环境防御：彻底封杀 Python 3.14 导致的 uvloop 崩溃隐患
 export DISABLE_UVLOOP=True
 
+echo 'export PYTHON_VLC_LIB_PATH="/Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib"'  
+echo 'export VLC_PLUGIN_PATH="/Applications/VLC.app/Contents/MacOS/plugins"'  
 
 # --- [2] 核心审计引擎与 AI 链路 ---
 
@@ -48,7 +50,6 @@ alias qlite="litellm --model anthropic/qwen-35b-local:anthropic/claude-3-5-sonne
 alias m4-done="cleanm4 && syncm4"
 
 # OpenClaw 自动补全组件
-[ -f "/Users/nusun/.openclaw/completions/openclaw.zsh" ] && source "/Users/nusun/.openclaw/completions/openclaw.zsh"
 
 # --- [3] 系统清理与防御 (锁定环境) ---
 cleanm4() {
@@ -109,3 +110,7 @@ syncm4() {
 }
 
 echo "🛡️ $SYSTEM_NAME 核心配置文件已高效加载。"
+
+# OpenClaw Completion
+[ -f "/Users/nusun/.openclaw/completions/openclaw.zsh" ] && source "/Users/nusun/.openclaw/completions/openclaw.zsh"
+ 
