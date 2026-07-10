@@ -116,3 +116,4 @@ echo "🛡️ $SYSTEM_NAME 核心配置文件已高效加载。"
 [ -f "/Users/nusun/.openclaw/completions/openclaw.zsh" ] && source "/Users/nusun/.openclaw/completions/openclaw.zsh"
  
 alias python='python3'
+alias start-audit='~/bin/q.sh'
