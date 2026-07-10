@@ -3,6 +3,7 @@ export SYSTEM_NAME="NUSUN"
 
 # 1. 纯净路径一体化（完美去重，确保优先级：Homebrew > Node Global > Local Bin > OpenCode）
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.lmstudio/bin:$HOME/.local/bin:$(npm prefix -g)/bin:/Users/nusun/.opencode/bin:$PATH"
+export PATH="/Users/nusun/.npm-global/bin:$PATH"
 
 # --- [1] 知识库与本地网关核心变量 ---
 export OBSIDIAN_API_KEY="6692d28e981afaf4ed52065d3f8ab7ae647caf049c7efbf710717fc86baabe08"
@@ -114,3 +115,4 @@ echo "🛡️ $SYSTEM_NAME 核心配置文件已高效加载。"
 # OpenClaw Completion
 [ -f "/Users/nusun/.openclaw/completions/openclaw.zsh" ] && source "/Users/nusun/.openclaw/completions/openclaw.zsh"
  
+alias python='python3'
